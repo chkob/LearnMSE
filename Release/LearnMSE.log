@@ -1,0 +1,47 @@
+﻿Build started 8/20/2014 3:05:40 AM.
+     1>Project "C:\Users\lfj\Desktop\Learning\LearnMSE\LearnMSE\LearnMSE.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /openmp /Yu"stdafx.h" /Fp"Release\a.pch" /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt NeuralNet.cpp
+         NeuralNet.cpp
+     1>c:\users\lfj\desktop\learning\learnmse\learnmse\NeuralNet.h(51): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\lfj\desktop\learning\learnmse\learnmse\NeuralNet.h(59): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\lfj\desktop\learning\learnmse\learnmse\NeuralNet.h(88): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\lfj\desktop\learning\learnmse\learnmse\NeuralNet.h(99): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(10): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>NeuralNet.cpp(85): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(91): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(94): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(102): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(154): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(157): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(165): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(179): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(182): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(190): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(207): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(219): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(228): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(234): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(238): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(257): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(267): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(278): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(311): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(332): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(351): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(375): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(383): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(389): warning C4018: '<' : signed/unsigned mismatch
+     1>NeuralNet.cpp(429): warning C4018: '<' : signed/unsigned mismatch
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\lfj\Desktop\Learning\LearnMSE\Release\a.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\lfj\Desktop\Learning\LearnMSE\Release\a.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\lfj\Desktop\Learning\LearnMSE\Release\a.lib" /MACHINE:X86 /SAFESEH Release\LearnMSE.obj
+         Release\NeuralNet.obj
+         Release\stdafx.obj
+         Generating code
+         Finished generating code
+         LearnMSE.vcxproj -> C:\Users\lfj\Desktop\Learning\LearnMSE\Release\a.exe
+     1>Done Building Project "C:\Users\lfj\Desktop\Learning\LearnMSE\LearnMSE\LearnMSE.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.54
