@@ -4,65 +4,59 @@
 #include "stdafx.h"
 #include "NeuralNet.h"
 
-using namespace std;
+std::string hidden_choice;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+
+	//* Setting the GPU device*////
+	int devID = 0;
+	cudaError_t error;
+	cudaDeviceProp deviceProp;
+	GpuErrorCheck(cudaGetDevice(&devID));
+	cudaFree(0); // context establishment happens here. This initialize GPU.
+
+
+
 	NeuralNet net;
- 
-	float x[1000], y[1000];
-		int sp[1000];
-	for(int i = 0; i < 1000; i++) {
-		x[i] = i+1;
-		y[i] = log(x[i]) + pow(x[i], 3) - 123;
-		
-		//x[i] /= 1000;
-		//y[i] /= 1e8;
-		
-		sp[i] = i;
-	}
+	
+	int layerNeuronsNum[4] = { 37, 45, 35, 1 };
 
-	int layerNeuronsNum[3] = { 1, 20, 1 };
-	net.CreateNetwork(3, layerNeuronsNum);
-	net.SetLearningRate(0.01f);
-	net.SetMomentum(0.05f);
+	hidden_choice = "_45_35_lr0.001_";
 
-	//for (int it = 0; it < 200; it ++) {
-	//	std::random_shuffle(sp, sp+1000);
-	//	for (int i = 0; i < 1000; i++) {
-	//		vector<float> in, out;
-	//		in.push_back(x[sp[i]]);	out.push_back(y[sp[i]]);
-	//		net.OnlineTrain(in, out, false);
-	//	}
-	//}
+	net.CreateNetwork(4, layerNeuronsNum);
 
-	//for (int i = 0; i < 1000; i++) {
-	//		vector<float> in, out;
-	//		in.push_back(x[i]);	
-	//		//..net.OnlineTrain(in, out, false);
-	//		net.Run(in, out);
-	//		std::cout << out[0] << " " << y[i] << std::endl;
-	//	}
-	//net.SaveNetwork("net");
+	//net.LoadNetwork("final_all_40_30_lr0.001_.net");
 
-	std::random_shuffle(sp, sp+1000);
+	std::vector<std::pair<std::string, std::string> > fileLists;
 
-	vector<vector<float> > inList, outList;
-	for (int i = 0; i < 1000; i++) {
-		vector<float> in, out;
-		in.push_back(x[sp[i]]);	out.push_back(y[sp[i]]);
-		inList.push_back(in);	outList.push_back(out);
-	}
+	fileLists.push_back(std::pair<std::string, std::string>("chess", "chess"));
+	fileLists.push_back(std::pair<std::string, std::string>("cornellbox", "cornellBox"));
+	fileLists.push_back(std::pair<std::string, std::string>("crytek_sponza", "crytek_sponza"));
+	fileLists.push_back(std::pair<std::string, std::string>("dof-dragons", "dof-dragons"));
+	//fileLists.push_back(std::pair<std::string, std::string>("dragonfog", "dragonfog"));
+	fileLists.push_back(std::pair<std::string, std::string>("plants-dusk", "plants-dusk_nn"));
+	fileLists.push_back(std::pair<std::string, std::string>("poolball", "poolball"));
+	fileLists.push_back(std::pair<std::string, std::string>("sanmiguel20", "sanmiguel20"));
+	fileLists.push_back(std::pair<std::string, std::string>("sibenik", "sibenik"));
+	fileLists.push_back(std::pair<std::string, std::string>("sponzafog", "sponza-fog"));
+	fileLists.push_back(std::pair<std::string, std::string>("teapot-metal", "teapot-metal"));
+	fileLists.push_back(std::pair<std::string, std::string>("yeahright", "yeahright"));
 
-	net.BatchTrain(inList, outList, 100000);
+	//net.TestNN(fileLists);
 
-	for (int i = 0; i < 1000; i++) {
-			vector<float> in, out;
-			in.push_back(x[i]);	
-			//..net.OnlineTrain(in, out, false);
-			net.Run(in, out);
-			std::cout << out[0] << " " << y[i] << std::endl;
-		}
+	const int sampelsNum = 1, max_epochs = 100000;
+	const unsigned long long wholeDataSize = 1000 * 1000 * 11 /** 4*/;
+
+	net.BatchTrain(fileLists, sampelsNum, max_epochs, wholeDataSize);
+
+	net.SaveNetwork("Learn.net");
+
+
+	cudaDeviceReset();
+
+	// Dump memory leaks
+	_CrtDumpMemoryLeaks();
 
 
 	return 0;
