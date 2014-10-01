@@ -15,10 +15,10 @@
 #include <omp.h>
 
 #include "engine.h"
-
+ 
 class NeuralNet
 {
-public:
+public: 
 	NeuralNet(void);
 	~NeuralNet(void);
 private:
@@ -64,7 +64,7 @@ private:
 		}
 		float GenNextLayerInput(int nodeID) const {
 			return output * weights[nodeID];
-		}
+		} 
 		float ComputeDeltaAndGrads(const std::vector<float> &postDeltas) {
 			float dActivation = model->d_activate(netin);
 			float postSum = 0.f;
@@ -168,7 +168,8 @@ public:
 		const int epochs, const int report_epochs = 500);
 
 	void BatchTrain(
-		const std::vector<std::pair<std::string, std::string> > &fileLists, 
+		std::vector<std::pair<std::pair<int,int>, std::string> > &fileLists, 
+		std::vector<std::pair<std::pair<int,int>, std::string> > &testFileLists, 
 		const int samplesNum, const int epochs, const unsigned long long wholeDataSize);
 
 	void MiniBatchTrain(
@@ -192,8 +193,26 @@ public:
 	void GPU_FeedForward(Matrix<float> &input, Matrix<float> *activations);
 	void ComputeOutputDelta(Matrix<float>& activation, Matrix<float>& outputGT, Matrix<float>& delta, double &error);
 	void GPU_BackPropagation(Matrix<float> *gradWeights, Matrix<float> *delta, Matrix<float> *activations);
-	void GPU_MiniBatchTrain(const std::vector<std::vector<float> > &inList, const std::vector<std::vector<float> > &outList, std::vector<std::vector<PackDeltaGrad> > &packs, double &error);
+	void GPU_MiniBatchTrain(const std::pair<int,int> &res, std::string filename, const std::vector<std::vector<float> > &inList, 
+		const std::vector<std::vector<float> > &outList, std::vector<std::vector<PackDeltaGrad> > &packs, double &error, bool testmode=false);
 
-	void TestNN(const std::vector<std::pair<std::string, std::string> > &filename);
+	float TestNN(const std::vector<std::pair<std::pair<int,int>, std::string> > &filename);
+
+	std::vector<int> random_sequence(int start, int end) {
+		std::vector<int> seq;
+		for (int i = start; i < end; i++) {
+			seq.push_back(i);
+		}
+		std::random_shuffle(seq.begin(), seq.end());
+		return seq;
+	}
+
+	void random_shuffle_files(std::vector<std::pair<std::pair<int,int>, std::string> > &files) {
+		std::vector<int> random_seq = random_sequence(0, files.size());
+		std::vector<std::pair<std::pair<int,int>, std::string> > newFiles;
+		for (int i = 0; i < files.size(); i++)
+			newFiles.push_back(files[random_seq[i]]);
+		files = newFiles;
+	}
 };
 

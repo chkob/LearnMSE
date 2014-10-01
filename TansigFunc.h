@@ -5,7 +5,7 @@ class TansigFunc : public ActivationFunc
 {
 public:
 	float activate(const float input) const {
-		return (2 / (1 + exp(-2*input)) - 1);
+		return (__safe_expf(input) - __safe_expf(-input)) / (__safe_expf(input) + __safe_expf(-input));//(2 / (1 + exp(-2*input)) - 1);
 	}
 
 	float d_activate(const float input) const {

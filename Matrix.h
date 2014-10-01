@@ -19,12 +19,12 @@ using namespace cimg_library;
 
 #define GpuErrorCheck(ans) { PrintError((ans), __FILE__, __LINE__); }
 #define MAX_LAYER_NUMBER 10							// Maximum number of layers a network can have
-#define CUDA_MAX_NUM_BLOCKS 16384					// Maximum number of cuda blocks in each dimension
+#define CUDA_MAX_NUM_BLOCKS 10000					// Maximum number of cuda blocks in each dimension
 #define NUM_THREAD_BLOCK_X 512						// The number of threads in a block in the x dimenison
 #define NUM_THREAD_BLOCK_XY 32						// The number of threads in a block in x and y dimensions (for square shaped matrices)
 #define EPSILON 1.0e-7
 #define BUFFER_SIZE 1000
-
+#define SAVE_EXP_THRESHOLD 70
 
 enum FUNC 
 { 
@@ -38,7 +38,9 @@ enum FUNC
 	LINEAR = 6,
 	LINEAR_DERIV = 7,
 	TAN_SIG = 8,
-	TAN_SIG_DERIV = 9
+	TAN_SIG_DERIV = 9,
+	NON_NEG_LINEAR = 10,
+	NON_NEG_LINEAR_DERIV = 11
 
 };
 
@@ -117,6 +119,7 @@ public:
 	void setElement(int row, int col, T element);
 	void setElements(T* elements);
 	void AllocateData(bool isCudaMat);
+	T *getPtr() { return elements;}
 
 private:
 

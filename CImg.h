@@ -25722,7 +25722,7 @@ namespace cimg_library_suffixed {
     /**
        \param value Reference value.
        \param metric_mask Metric mask.
-       \note The algorithm code has been initially proposed by A. Meijster, and modified by D. Tschumperlé.
+       \note The algorithm code has been initially proposed by A. Meijster, and modified by D. Tschumperl?
     **/
     template<typename t>
     CImg<T>& distance(const T value, const CImg<t>& metric_mask) {

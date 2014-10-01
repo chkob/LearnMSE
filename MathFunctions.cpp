@@ -44,11 +44,13 @@ void MatMultABT(cublasHandle_t handle, Matrix<float>& A, Matrix<float>& B, Matri
 	CublasErrorCheck(cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, B.getHeight(), A.getHeight(), A.getWidth(), &alpha, B.getElements(), B.getWidth(), A.getElements(), A.getWidth(), &beta, C.getElements(), C.getWidth()));
 }
 
-void ComputeNorm2(cublasHandle_t handle, Matrix<float>& A, float& res)
+void ComputeNorm2(cublasHandle_t handle, Matrix<float>& A, double& err)
 {
 	assert(A.getIsCudaMat());
 
+	float res = 0;
 	CublasErrorCheck(cublasSnrm2(handle, A.getWidth()*A.getHeight(), A.getElements(), 1, &res));
+	err = res;
 }
 
 void SumRows(cublasHandle_t handle, Matrix<float>& A, Matrix<float>& C)

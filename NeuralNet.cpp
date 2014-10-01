@@ -4,21 +4,27 @@
 #include "TansigFunc.h"
 #include "LogsigFunc.h"
 #include "RectifierFunc.h"
+#include "TanHFunc.h"
+#include "NonNegLinearFunc.h"
 #include <Windows.h>
 
+#include "WriteEXR.h"
 //#define USE_rmsRprop
 //#define USE_Momentum
+//#define USE_IRProp_Plus
 
 extern std::string hidden_choice;
+extern float c;
+extern int TEST_N;
 
 NeuralNet::NeuralNet(void)
 {
 	srand(time(NULL));
-	m_maxGrad = 50.f;
+	m_maxGrad = 50.f;//10.f;//
 	m_minGrad = 1e-6f;
 	m_posBonus = 1.2f;
 	m_negBonus = 0.5f;
-	m_learningRate = 1e-3f;
+	m_learningRate = 1.f;//1e-3f;//
 	m_momentum = 0.7f;
 }
 
@@ -46,8 +52,21 @@ __forceinline float CLAMP(float x, float m_min, float m_max) {
 	return  x < m_min ? m_min : ( x > m_max ? m_max : x );
 }
 
-template <typename T> __forceinline int SIGN(T val) {
-	return (T(0) < val) - (val < T(0));
+__forceinline int SIGN(float x) 
+{
+	if(x < -EPSILON) 
+	{
+		return -1;
+	} 
+	else if (x > EPSILON) 
+	{
+		return 1;
+	} 
+	else 
+	{
+		return 0;
+	}
+
 }
 
 void NeuralNet::CreateNetwork(int layerNum, int nodeNums[]) {
@@ -69,11 +88,11 @@ void NeuralNet::CreateNetwork(int layerNum, int nodeNums[]) {
 				}
 				neuron.gradients.resize(nodeNums[i+1]);
 				if (i != 0){
-					neuron.model = new TansigFunc;
+					neuron.model = new TansigFunc;//LogsigFunc;//TanHFunc;//
 				}
 			}
 			else
-				neuron.model = new RectFunc;
+				neuron.model = new  RectFunc;//NonNegLinearFunc;//  LinearFunc;//
 
 			neuron.output = 0.f;
 
@@ -150,11 +169,11 @@ void NeuralNet::LoadNetwork(const std::string &filename) {
 				}
 				layer.neurons[nodeID].gradients.resize(numNeurons[i+1]);
 				if (i != 0){
-					layer.neurons[nodeID].model = new TansigFunc;
+					layer.neurons[nodeID].model = new TansigFunc;// LogsigFunc;//
 				}
 			}
 			else
-				layer.neurons[nodeID].model = new RectFunc;
+				layer.neurons[nodeID].model = new RectFunc;// NonNegLinearFunc;//  LinearFunc;// 
 		}
 		m_network.push_back(layer);
 	}
@@ -506,6 +525,18 @@ void reshape(std::vector<std::vector<float> > &rst_vec, std::vector<float> &in_v
 	}
 }
 
+void reshape(float limit, std::vector<std::vector<float> > &rst_vec, std::vector<float> &in_vec, const int rows, const int cols) {
+	rst_vec.resize(rows);
+#pragma omp parallel for
+	for (int i = 0; i < rows; i++) {
+		std::vector<float> vec(cols);
+		for (int j = 0; j < cols; j++) {
+			vec[j] = min(in_vec[i*cols+j], limit);
+		}
+		rst_vec[i] = vec;
+	}
+}
+
 void reshape(std::vector<std::vector<float> > &rst_vec, std::vector<float> &in_vec, const int rows, const int cols, float attach) {
 	rst_vec.resize(rows);
 #pragma omp parallel for
@@ -561,7 +592,8 @@ void NeuralNet::ParUpdateWeights(const std::vector<std::vector<PackDeltaGrad> > 
 }
 
 void NeuralNet::BatchTrain(
-	const std::vector<std::pair<std::string, std::string> > &fileLists,
+	std::vector<std::pair<std::pair<int,int>, std::string> > &fileLists,
+	std::vector<std::pair<std::pair<int,int>, std::string> > &testFileLists, 
 	const int samplesNum, const int epochs, const unsigned long long wholeDataSize) 
 {
 	const int sceneNum = fileLists.size(), numLayer = m_network.size();
@@ -570,11 +602,17 @@ void NeuralNet::BatchTrain(
 
 	float minError = FLT_MAX;
 
+	float thisErr, lastErr;
+
 	openMatlab();
 	std::vector<float> errList;
 
 	for (int epoch = 0; epoch < epochs; epoch ++) {
-		printf("Epoch %d Begin\n", epoch);
+		printf("\n\nEpoch %d Begin\n", epoch);
+
+		random_shuffle_files(fileLists);
+		//random_shuffle_files(testFileLists);
+
 
 		GPU_CopyWeights();
 
@@ -585,22 +623,23 @@ void NeuralNet::BatchTrain(
 		int totalSize = 0;
 
 		for (int sceneID = 0; sceneID < sceneNum; sceneID++) {
-		//	int s = rand() % samplesNum + 1;
-			const int s = 0;
+			int s = 0;//epoch % samplesNum + 1;
 			double sceneError = 0.f;
 			int sceneSize = 0;
 
-			const int sampleRate = 0;
-			//for (int sampleRate = 0; sampleRate < 4; sampleRate++) {
-				std::string inFile = fileLists[sceneID].first + "\\"+ fileLists[sceneID].second  + "_input" + to_string(s)/*+ to_string(sampleRate) + "_rnd_" + to_string(s) */+".dat";
-				std::string outFile = fileLists[sceneID].first + "\\"+ fileLists[sceneID].second + "_output" + to_string(s)/*+ to_string(sampleRate) + "_rnd_" + to_string(s) */+".dat";
-				FILE *pFIN, *pFOUT;
+			for (int sampleRate = 0; sampleRate < 1/*4*/; sampleRate ++) {
+			
+			std::string inFile =  "data\\"+ fileLists[sceneID].second  + "_input" + to_string(sampleRate)+".dat";
+			std::string outFile = "data\\"+ fileLists[sceneID].second + "_output" + to_string(sampleRate)+".dat";
+
+
+			FILE *pFIN, *pFOUT;
 				while(!(pFIN = fopen(inFile.c_str(), "rb")))   { 
-					printf("Load file = %s, s = %d, sceneID = %d, spRate = %d, infile fail! %s! sleep...\n", inFile.c_str(), 0/*s*/, sceneID, sampleRate, strerror(errno));
+					printf("Load file = %s, s = %d, sceneID = %d, spRate = %d, infile fail! %s! sleep...\n", inFile.c_str(), s, sceneID, sampleRate, strerror(errno));
 					Sleep(1000); 
 				}
 				while(!(pFOUT = fopen(outFile.c_str(), "rb"))) { 
-					printf("Load file = %s, s = %d, sceneID = %d, spRate = %d, outfile fail! %s! sleep...\n", outFile.c_str(), 0/*s*/, sceneID, sampleRate, strerror(errno));
+					printf("Load file = %s, s = %d, sceneID = %d, spRate = %d, outfile fail! %s! sleep...\n", outFile.c_str(), s, sceneID, sampleRate, strerror(errno));
 					Sleep(1000); 
 				}
 				int listSize, perSizeIN, perSizeOUT;
@@ -617,35 +656,39 @@ void NeuralNet::BatchTrain(
 				fclose(pFIN);	fclose(pFOUT);
 
 				std::vector<std::vector<float> > inList, outList;
-				
-				reshape(inList, inBuf, listSize, perSizeIN, (float) 8*(sampleRate+1) / 32.f);
-				reshape(outList, outBuf, listSize, perSizeOUT, (float) 8*(sampleRate+1) / 32.f);
+
+				reshape(inList, inBuf, listSize, perSizeIN);
+				reshape(outList, outBuf, listSize, perSizeOUT);
 
 				inBuf.clear();	outBuf.clear();
 				
 				double error = 0;
 				std::vector<std::vector<PackDeltaGrad> > packs(numLayer);
-				GPU_MiniBatchTrain(inList, outList, packs, error);
+				GPU_MiniBatchTrain(fileLists[sceneID].first, "Img\\train\\"+fileLists[sceneID].second+hidden_choice+".exr",inList, outList, packs, error);
 				ParUpdateWeights(packs, WeightsForUpdating, wholeDataSize);
 				sceneError += error;
 				totalError += error;
 				sceneSize += listSize;
 				
-			//} // End Loop SampleRate
+			} // End Loop SampleRate
 		//}// End Loop random s
-			std::cout << "SceneID = " << sceneID << " SceneError = " << sceneError << " " << sceneError / sceneSize << " " << fileLists[sceneID].first <<  " rand s = " << s << " sceneSize = " << sceneSize << std::endl;
+			std::cout << "Train SceneID = " << sceneID << " SceneError = " << sceneError << " " << sceneError / sceneSize << " " << fileLists[sceneID].second <<  " rand s = " << s << " sceneSize = " << sceneSize << std::endl;
 			totalSize += sceneSize;
 		}// End Loop SceneID
 
+		thisErr = totalError / totalSize;
 
-		if (totalError < minError) {
-			minError = totalError;
+		std::cout << "Epoch = " << epoch << " TrainMinError = " << minError << " " << minError / totalSize << " TotalError = " << totalError << " " << totalError / totalSize << " totalsize= "<< totalSize << std::endl;
+		if (thisErr< minError) {
+			minError = thisErr;
 			SaveNetwork("final_all"+hidden_choice+".net");
 		}
-		std::cout << "Epoch = " << epoch << " MinError = " << minError << " " << minError / totalSize << " TotalError = " << totalError << " " << totalError / totalSize << " totalsize= "<< totalSize << std::endl;
-		errList.push_back(totalError/totalSize);
-		plotInMatlab((float*)&errList[0], epoch, 0);
+		if(epoch && epoch%TEST_N==0) {
+			this->TestNN((fileLists));
+		}
 
+		errList.push_back( minError / totalSize );
+		plotInMatlab((float*)&errList[0], epoch, 0);
 
 		for (int i = 0; i < numLayer; i++) {
 			Layer &layer = m_network[i];
@@ -691,6 +734,9 @@ void NeuralNet::BatchTrain(
 					else if (dir < -EPSILON) {
 						float delta = max(fabs(node.lastBiasDelta * m_negBonus), m_minGrad);
 						float dW = -node.lastDBias;
+#ifdef USE_IRProp_Plus
+						if (epoch && lastErr < thisErr)
+#endif
 						node.bias += dW * m_learningRate;
 						node.lastBiasSign = 0;
 						node.lastBiasDelta = delta;
@@ -753,6 +799,9 @@ void NeuralNet::BatchTrain(
 						else if (dir < -EPSILON) {
 							float delta = max(fabs(node.lastWeightDeltas[j] * m_negBonus), m_minGrad);
 							float dW = -node.lastDWeights[j];
+#ifdef USE_IRProp_Plus
+							if (epoch && lastErr < thisErr)
+#endif	
 							node.weights[j] += dW * m_learningRate;
 							node.lastWeightSigns[j] = 0;
 							node.lastWeightDeltas[j] = delta;
@@ -770,6 +819,10 @@ void NeuralNet::BatchTrain(
 					}
 				}
 			}
+		}
+
+		if(epoch) {
+			lastErr = thisErr;
 		}
 
 		printf("Epoch %d Finished!\n", epoch);
@@ -837,8 +890,7 @@ void NeuralNet::MiniBatchTrain(
 
 void AddBiasApplyActivation(FUNC func, Matrix<float>& A, Matrix<float>& B);
 void SubtractBFromA(Matrix<float>& A, Matrix<float>& B, Matrix<float>& C);
-void SubtractBFromARelative(Matrix<float>& A, Matrix<float>& B, Matrix<float>& C);
-void SubtractBFromARelative2(Matrix<float>& A, Matrix<float>& B, Matrix<float>& C);
+void SubtractBFromARelativeC(Matrix<float>& A, Matrix<float>& B, Matrix<float>& C, float c);
 void MultApplyActivationDeriv(FUNC func, Matrix<float>& A, Matrix<float>& B);
 void RProp(Matrix<float>& currentWeights, Matrix<float>& currentGradients, Matrix<float>& meanSquaredGrad, float learningRate, int iteration);
 void AddAToB(Matrix<float>& A, Matrix<float>& B);
@@ -853,12 +905,12 @@ void NeuralNet::GPU_Init() {
 	activationFuncsPerLayer = new FUNC[2*(numOfLayers-1)];
 	for (int i = 0; i < numOfLayers - 1; i++) {
 		if (i == numOfLayers-2) {
-			activationFuncsPerLayer[2*i] = REC_LINEAR;
-			activationFuncsPerLayer[2*i + 1] = REC_LINEAR_DERIV;
+			activationFuncsPerLayer[2*i] = REC_LINEAR;//NON_NEG_LINEAR; //  LINEAR;//
+			activationFuncsPerLayer[2*i + 1] = REC_LINEAR_DERIV;//NON_NEG_LINEAR_DERIV; // LINEAR_DERIV;//    
 		}
 		else {
-			activationFuncsPerLayer[2*i] = TAN_SIG;
-			activationFuncsPerLayer[2*i + 1] = TAN_SIG_DERIV;
+			activationFuncsPerLayer[2*i] = TANH;//SIGMOID;//TAN_SIG;// 
+			activationFuncsPerLayer[2*i + 1] = TANH_DERIV;//SIGMOID_DERIV;//TAN_SIG_DERIV;//  
 		}
 	}
 	devWeights = new Matrix<float>[2*(numOfLayers-1)];
@@ -967,23 +1019,25 @@ void NeuralNet::ComputeOutputDelta(Matrix<float>& activation, Matrix<float>& out
 
 	delta = Matrix<float>(activation.getWidth(), activation.getHeight());
 	delta.AllocateData(true);
-	SubtractBFromA(activation, outputGT, delta);
-	outputGT.~Matrix();
-	float err = 0;
-	ComputeNorm2(handle, delta, err);
-	error = err;
+
+	//SubtractBFromA(activation, outputGT, delta);
+	SubtractBFromARelativeC(activation, outputGT, delta, c);
+	ComputeNorm2(handle, delta, error);
 	error *= error;
 
+	outputGT.~Matrix();
+	
 	MultApplyActivationDeriv(activationFuncsPerLayer[2*(numOfLayers-2)+1], delta, activation);
 	
 	activation.DeviceToHost(); // We take it to the host to write it to a file at the end.
 }
 
 void NeuralNet::GPU_MiniBatchTrain(
+	const std::pair<int,int> &res, std::string filename,
 	const std::vector<std::vector<float> > &inList,
 	const std::vector<std::vector<float> >& outList,
 	std::vector<std::vector<PackDeltaGrad> > &thepacks,
-	double &error)  
+	double &error, bool testmode)  
 {
 	clock_t tic = clock();
 
@@ -1017,60 +1071,74 @@ void NeuralNet::GPU_MiniBatchTrain(
 	GPU_FeedForward(input, activations);
 	
 	ComputeOutputDelta(activations[numOfLayers-1], desired_output, delta[numOfLayers-2], error);
-	
-	GPU_BackPropagation(devGradients, delta, activations);
+	if(testmode)
+	WriteEXR(filename.c_str(), activations[numOfLayers-1].getPtr(), res.first, res.second);
+
+	if(!testmode)
+		GPU_BackPropagation(devGradients, delta, activations);
 
 	delete[] activations;
 	delete[] delta;
 	
-	// TODO :  GET BACK MY GRADIENTS!
-	thepacks.resize(numOfLayers);
-	ParInitWeightsForUpdating(thepacks);
+	if(!testmode) {
+		// TODO :  GET BACK MY GRADIENTS!
+		thepacks.resize(numOfLayers);
+		ParInitWeightsForUpdating(thepacks);
 
 
-	for (int i = 0; i < numOfLayers - 1; i ++) {
-		// Gradient for weights
-		devGradients[2*i].DeviceToHost();
-		Matrix<float> &devWeights = devGradients[2*i];
-		/*devGradients[2*i] = Matrix<float>(layerSizes[i], layerSizes[i + 1]);
-		devGradients[2*i].AllocateData(true);
-		devGradients[2*i].SetToZero();*/
-		std::vector<PackDeltaGrad> &thisLayer = thepacks[i];
-		std::vector<PackDeltaGrad> &nextLayer = thepacks[i+1];
-		for (int nodeID = 0; nodeID < thisLayer.size(); nodeID++) {
-			for (int nextNodeID = 0; nextNodeID < nextLayer.size(); nextNodeID++) {
-				thisLayer[nodeID].grads[nextNodeID] = -devWeights.getElement(nodeID, nextNodeID);
+		for (int i = 0; i < numOfLayers - 1; i ++) {
+			// Gradient for weights
+			devGradients[2*i].DeviceToHost();
+			Matrix<float> &devWeights = devGradients[2*i];
+			/*devGradients[2*i] = Matrix<float>(layerSizes[i], layerSizes[i + 1]);
+			devGradients[2*i].AllocateData(true);
+			devGradients[2*i].SetToZero();*/
+			std::vector<PackDeltaGrad> &thisLayer = thepacks[i];
+			std::vector<PackDeltaGrad> &nextLayer = thepacks[i+1];
+			for (int nodeID = 0; nodeID < thisLayer.size(); nodeID++) {
+				for (int nextNodeID = 0; nextNodeID < nextLayer.size(); nextNodeID++) {
+					thisLayer[nodeID].grads[nextNodeID] = -devWeights.getElement(nodeID, nextNodeID);
+				}
 			}
-		}
-		devGradients[2*i].HostToDevice();
+			devGradients[2*i].HostToDevice();
 
-		// Gradients for biases
-		devGradients[2*i+1].DeviceToHost();
-		Matrix<float> &devBiases = devGradients[2*i+1];
-		/*devGradients[2*i+1] = Matrix<float>(1, layerSizes[i + 1]);
-		devGradients[2*i+1].AllocateData(true);
-		devGradients[2*i+1].SetToZero();*/
-		for (int nextNodeID = 0; nextNodeID < nextLayer.size(); nextNodeID++) {
-			nextLayer[nextNodeID].delta = -devBiases.getElement(nextNodeID);
-		}
-		devGradients[2*i+1].HostToDevice();
+			// Gradients for biases
+			devGradients[2*i+1].DeviceToHost();
+			Matrix<float> &devBiases = devGradients[2*i+1];
+			/*devGradients[2*i+1] = Matrix<float>(1, layerSizes[i + 1]);
+			devGradients[2*i+1].AllocateData(true);
+			devGradients[2*i+1].SetToZero();*/
+			for (int nextNodeID = 0; nextNodeID < nextLayer.size(); nextNodeID++) {
+				nextLayer[nextNodeID].delta = -devBiases.getElement(nextNodeID);
+			}
+			devGradients[2*i+1].HostToDevice();
 
+		}
 	}
-
 	//printf("GPU Mini-Batch training, timeuse = %d msecs, error = %f\n", clock()-tic, error);
 }
  
-void NeuralNet::TestNN(const std::vector<std::pair<std::string, std::string> > &fileLists) {
+float NeuralNet::TestNN(const std::vector<std::pair<std::pair<int,int>, std::string> > &fileLists) {
+	double totalError = 0.f;
+	int totalSize = 0;
 	for (int sceneID = 0; sceneID < fileLists.size(); sceneID++) {
-		for (int sampleRate = 0; sampleRate < 4; sampleRate ++) {
-			const int s = rand() % 5 + 1;
+		int s = 0;//epoch % samplesNum + 1;
+		double sceneError = 0.f;
+		int sceneSize = 0;
 
-			std::string inF = fileLists[sceneID].first + "\\"/* + std::to_string(s) + "\\" */+ fileLists[sceneID].second  + "_input"+ to_string(sampleRate) + "_rnd_" + to_string(s) +".dat";
-			std::string outF = fileLists[sceneID].first + "\\"/* + std::to_string(s) + "\\" */+ fileLists[sceneID].second + "_output"+ to_string(sampleRate) + "_rnd_" + to_string(s) +".dat";
-			std::cout << "INF = " << inF << " outF = " << outF <<  " s = " << s  << " spRate = " << sampleRate << std::endl;
+		for (int sampleRate = 0; sampleRate < 1/*4*/; sampleRate ++) {
+			std::string inFile =  "data\\"+ fileLists[sceneID].second  + "_input" + to_string(sampleRate)+".dat";
+			std::string outFile = "data\\"+ fileLists[sceneID].second + "_output" + to_string(sampleRate)+".dat";
 			FILE *pFIN, *pFOUT;
-			pFIN = fopen(inF.c_str(), "rb");
-			pFOUT = fopen(outF.c_str(), "rb");
+			if(!(pFIN = fopen(inFile.c_str(), "rb")))   { 
+				printf("Load file = %s, s = %d, sceneID = %d, spRate = %d, infile fail! %s! sleep...\n", inFile.c_str(), s, sceneID, sampleRate, strerror(errno));
+				Sleep(1000); 
+				continue;
+			}
+			if(!(pFOUT = fopen(outFile.c_str(), "rb"))) { 
+				printf("Load file = %s, s = %d, sceneID = %d, spRate = %d, outfile fail! %s! sleep...\n", outFile.c_str(), s, sceneID, sampleRate, strerror(errno));
+				Sleep(1000); 
+			}
 			int listSize, perSizeIN, perSizeOUT;
 			fread(reinterpret_cast<char*>(&listSize), sizeof(int), 1, pFIN);
 			fread(reinterpret_cast<char*>(&listSize), sizeof(int), 1, pFOUT);
@@ -1085,29 +1153,37 @@ void NeuralNet::TestNN(const std::vector<std::pair<std::string, std::string> > &
 			fclose(pFIN);	fclose(pFOUT);
 
 			std::vector<std::vector<float> > inList, outList;
-			reshape(inList, inBuf, listSize, perSizeIN, (float)(sampleRate+1)*8/32.f);
-			reshape(outList, outBuf, listSize, perSizeOUT, (float)(sampleRate+1)*8/32.f);
+
+			reshape(inList, inBuf, listSize, perSizeIN);
+			reshape(outList, outBuf, listSize, perSizeOUT);
+
 			inBuf.clear();	outBuf.clear();
 
-			std::ofstream fout2(fileLists[sceneID].first + "_spRate_" + to_string(sampleRate) + "_nnOut.txt");
+			double error = 0;
+			std::vector<std::vector<PackDeltaGrad> > packs(m_network.size());
+			GPU_MiniBatchTrain(fileLists[sceneID].first, "Img\\test\\"+fileLists[sceneID].second+hidden_choice+".exr",inList, outList, packs, error, true);
+			 
+			sceneError += error;
+			totalError += error;
+			sceneSize += listSize;
 
-			for (int i = 0; i < listSize; i++) {
-				std::vector<float> in = inList[i], out = outList[i], nnOut;
-				this->Run(in, nnOut);
-				fout2 << nnOut[0] << " " << out[0] << std::endl;
-			}
-
-			fout2.close();
-		}
-	}
-	return ;
+		} // End Loop SampleRate
+		//}// End Loop random s
+		std::cout << "Test SceneID = " << sceneID << " SceneError = " << sceneError / sceneSize << " " << sceneError  << " " << fileLists[sceneID].second <<  " rand s = " << s << " sceneSize = " << sceneSize << std::endl;
+		totalSize += sceneSize;
+	}// End Loop SceneID
+	std:cout << "Total Test Error = " << totalError / totalSize << " " << totalError << std::endl;
+	return totalError / totalSize;
 }
 
 
 void NeuralNet::openMatlab() {
 	assert(MatlabPloter == NULL);
 
-	if (!(MatlabPloter = engOpen(""))) {
+	/*if (!(MatlabPloter = engOpen(""))) {*/
+	void *vpDcom = NULL;	
+	int iReturnValue;
+	if (!(MatlabPloter = engOpenSingleUse("", vpDcom, &iReturnValue))) {
 		fprintf(stderr, "ERROR:Can't start MATLAB engine!\n");
 		return;
 	}
@@ -1130,7 +1206,7 @@ void NeuralNet::plotInMatlab(float *errList, int curEpoch, int startEpoch) {
 	// Put the variable in the environment and plot
 	engPutVariable(MatlabPloter, "error", error);
 	engEvalString(MatlabPloter, "plot(error);");
-	engEvalString(MatlabPloter, "title('Error Plot');");
+	engEvalString(MatlabPloter, string("title('Error Plot"+to_string(c)+"');").c_str());
 	engEvalString(MatlabPloter, "drawnow;");
 
 	// Delete matlab array

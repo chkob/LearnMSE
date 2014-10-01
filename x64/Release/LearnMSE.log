@@ -1,42 +1,142 @@
-﻿Build started 9/6/2014 5:26:38 PM.
+﻿Build started 9/28/2014 11:37:53 AM.
      1>Project "C:\Users\lfj\Desktop\Learning\LearnMSE\LearnMSE\LearnMSE.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\MATLAB\R2013b\extern\include" /I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v5.5\common\inc" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /Zi /nologo /W3 /WX- /sdl- /O2 /Oi /Ot /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /arch:SSE2 /Zc:wchar_t /Zc:forScope /openmp /Yu"stdafx.h" /Fp"x64\Release\NeuralNetwork.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt LearnMSE.cpp NeuralNet.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\MATLAB\R2013b\extern\include" /I"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v5.5\common\inc" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /Zi /nologo /W3 /WX- /sdl- /O2 /Oi /Ot /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /arch:SSE2 /Zc:wchar_t /Zc:forScope /openmp /Yu"stdafx.h" /Fp"x64\Release\Trainer.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt NeuralNet.cpp
      1>cl : Command line warning D9002: ignoring unknown option '/arch:SSE2'
-         LearnMSE.cpp
-     1>LearnMSE.cpp(14): warning C4101: 'error' : unreferenced local variable
-     1>LearnMSE.cpp(15): warning C4101: 'deviceProp' : unreferenced local variable
          NeuralNet.cpp
+     1>c:\users\lfj\desktop\learning\learnmse\learnmse\NeuralNet.h(211): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
      1>c:\users\lfj\desktop\learning\learnmse\learnmse\RectifierFunc.h(8): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
      1>c:\users\lfj\desktop\learning\learnmse\learnmse\RectifierFunc.h(12): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
-     1>NeuralNet.cpp(16): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
-     1>NeuralNet.cpp(230): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>NeuralNet.cpp(266): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>NeuralNet.cpp(310): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(313): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(356): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(421): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(524): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(543): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(567): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(642): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>NeuralNet.cpp(646): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>NeuralNet.cpp(653): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(793): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(812): warning C4244: 'argument' : conversion from 'float' to 'const int', possible loss of data
-     1>NeuralNet.cpp(848): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(851): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>NeuralNet.cpp(871): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(921): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(938): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(966): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(990): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(991): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(992): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
-     1>NeuralNet.cpp(993): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
-     1>NeuralNet.cpp(994): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>NeuralNet.cpp(22): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>NeuralNet.cpp(249): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
+     1>NeuralNet.cpp(285): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
+     1>NeuralNet.cpp(329): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(332): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(375): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(440): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(555): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(574): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(599): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(679): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>NeuralNet.cpp(703): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(853): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(872): warning C4244: 'argument' : conversion from 'float' to 'const int', possible loss of data
+     1>NeuralNet.cpp(907): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(910): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>NeuralNet.cpp(930): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(980): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(997): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(1025): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(1051): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(1052): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(1053): warning C4267: 'initializing' : conversion from 'size_t' to 'const int', possible loss of data
+     1>NeuralNet.cpp(1054): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>NeuralNet.cpp(1055): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>NeuralNet.cpp(1183): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>NeuralNet.cpp(1182): warning C4102: 'std' : unreferenced label
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\lfj\Desktop\Learning\LearnMSE\x64\Release\NeuralNetwork.exe" /NOLOGO /LIBPATH:"C:\Program Files\MATLAB\R2013a\extern\lib\win64\microsoft" /LIBPATH:"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v5.5\common\lib" /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\x64" /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\x64" libeng.lib libmat.lib libmx.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib cudart.lib cublas.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\lfj\Desktop\Learning\LearnMSE\x64\Release\NeuralNetwork.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\lfj\Desktop\Learning\LearnMSE\x64\Release\NeuralNetwork.lib" /MACHINE:X64 x64\Release\CudaKernels.cu.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\lfj\Desktop\Learning\LearnMSE\x64\Release\Trainer.exe" /NOLOGO /LIBPATH:"C:\Program Files\MATLAB\R2013a\extern\lib\win64\microsoft" /LIBPATH:"C:\ProgramData\NVIDIA Corporation\CUDA Samples\v5.5\common\lib" /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\x64" /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\x64" libeng.lib libmat.lib libmx.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib cudart.lib cublas.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\lfj\Desktop\Learning\LearnMSE\x64\Release\Trainer.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\lfj\Desktop\Learning\LearnMSE\x64\Release\Trainer.lib" /MACHINE:X64 x64\Release\CudaKernels.cu.obj
+         x64\Release\eLut.obj
+         x64\Release\half.obj
+         x64\Release\IexBaseExc.obj
+         x64\Release\IexThrowErrnoExc.obj
+         x64\Release\IlmThread.obj
+         x64\Release\IlmThreadMutex.obj
+         x64\Release\IlmThreadMutexPosix.obj
+         x64\Release\IlmThreadMutexWin32.obj
+         x64\Release\IlmThreadPool.obj
+         x64\Release\IlmThreadPosix.obj
+         x64\Release\IlmThreadSemaphore.obj
+         x64\Release\IlmThreadSemaphorePosix.obj
+         x64\Release\IlmThreadSemaphorePosixCompat.obj
+         x64\Release\IlmThreadSemaphoreWin32.obj
+         x64\Release\IlmThreadWin32.obj
+         x64\Release\ImathBox.obj
+         x64\Release\ImathColorAlgo.obj
+         x64\Release\ImathFun.obj
+         x64\Release\ImathMatrixAlgo.obj
+         x64\Release\ImathRandom.obj
+         x64\Release\ImathShear.obj
+         x64\Release\ImathVec.obj
+         x64\Release\toFloat.obj
+         x64\Release\b44ExpLogTable.obj
+         x64\Release\ImfAcesFile.obj
+         x64\Release\ImfAttribute.obj
+         x64\Release\ImfB44Compressor.obj
+         x64\Release\ImfBoxAttribute.obj
+         x64\Release\ImfChannelList.obj
+         x64\Release\ImfChannelListAttribute.obj
+         x64\Release\ImfChromaticities.obj
+         x64\Release\ImfChromaticitiesAttribute.obj
+         x64\Release\ImfCompressionAttribute.obj
+         x64\Release\ImfCompressor.obj
+         x64\Release\ImfConvert.obj
+         x64\Release\ImfCRgbaFile.obj
+         x64\Release\ImfDoubleAttribute.obj
+         x64\Release\ImfEnvmap.obj
+         x64\Release\ImfEnvmapAttribute.obj
+         x64\Release\ImfFloatAttribute.obj
+         x64\Release\ImfFrameBuffer.obj
+         x64\Release\ImfFramesPerSecond.obj
+         x64\Release\ImfHeader.obj
+         x64\Release\ImfHuf.obj
+         x64\Release\ImfInputFile.obj
+         x64\Release\ImfIntAttribute.obj
+         x64\Release\ImfIO.obj
+         x64\Release\ImfKeyCode.obj
+         x64\Release\ImfKeyCodeAttribute.obj
+         x64\Release\ImfLineOrderAttribute.obj
+         x64\Release\ImfLut.obj
+         x64\Release\ImfMatrixAttribute.obj
+         x64\Release\ImfMisc.obj
+         x64\Release\ImfMultiView.obj
+         x64\Release\ImfOpaqueAttribute.obj
+         x64\Release\ImfOutputFile.obj
+         x64\Release\ImfPizCompressor.obj
+         x64\Release\ImfPreviewImage.obj
+         x64\Release\ImfPreviewImageAttribute.obj
+         x64\Release\ImfPxr24Compressor.obj
+         x64\Release\ImfRational.obj
+         x64\Release\ImfRationalAttribute.obj
+         x64\Release\ImfRgbaFile.obj
+         x64\Release\ImfRgbaYca.obj
+         x64\Release\ImfRleCompressor.obj
+         x64\Release\ImfScanLineInputFile.obj
+         x64\Release\ImfStandardAttributes.obj
+         x64\Release\ImfStdIO.obj
+         x64\Release\ImfStringAttribute.obj
+         x64\Release\ImfStringVectorAttribute.obj
+         x64\Release\ImfTestFile.obj
+         x64\Release\ImfThreading.obj
+         x64\Release\ImfTileDescriptionAttribute.obj
+         x64\Release\ImfTiledInputFile.obj
+         x64\Release\ImfTiledMisc.obj
+         x64\Release\ImfTiledOutputFile.obj
+         x64\Release\ImfTiledRgbaFile.obj
+         x64\Release\ImfTileOffsets.obj
+         x64\Release\ImfTimeCode.obj
+         x64\Release\ImfTimeCodeAttribute.obj
+         x64\Release\ImfVecAttribute.obj
+         x64\Release\ImfVersion.obj
+         x64\Release\ImfWav.obj
+         x64\Release\ImfZipCompressor.obj
+         x64\Release\adler32.obj
+         x64\Release\compress.obj
+         x64\Release\crc32.obj
+         x64\Release\deflate.obj
+         x64\Release\example.obj
+         x64\Release\gzclose.obj
+         x64\Release\gzlib.obj
+         x64\Release\gzread.obj
+         x64\Release\gzwrite.obj
+         x64\Release\infback.obj
+         x64\Release\inffast.obj
+         x64\Release\inflate.obj
+         x64\Release\inftrees.obj
+         x64\Release\minigzip.obj
+         x64\Release\trees.obj
+         x64\Release\uncompr.obj
+         x64\Release\zutil.obj
          x64\Release\LearnMSE.obj
          x64\Release\MathFunctions.obj
          x64\Release\NeuralNet.obj
@@ -44,9 +144,9 @@
          x64\Release\Utilities.obj
          Generating code
          Finished generating code
-         LearnMSE.vcxproj -> C:\Users\lfj\Desktop\Learning\LearnMSE\x64\Release\NeuralNetwork.exe
+         LearnMSE.vcxproj -> C:\Users\lfj\Desktop\Learning\LearnMSE\x64\Release\Trainer.exe
      1>Done Building Project "C:\Users\lfj\Desktop\Learning\LearnMSE\LearnMSE\LearnMSE.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:06.24
+Time Elapsed 00:00:07.75
